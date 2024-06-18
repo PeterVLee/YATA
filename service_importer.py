@@ -1,6 +1,16 @@
 import pandas as pd
 
-def import_2fas(input_file):
+def import_2fas(input_file, save_csv = False):
+    """Function to parse exported 2fas csv's
+    TODO: Decryption
+
+    Args:
+        input_file (String): Path to csv
+        save_csv (boolean): Save parsed csv (IN PLAINTEXT) or not
+
+    Returns:
+        DataFrame: Parsed names and secrets
+    """
     names = []
     secrets = []
 

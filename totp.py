@@ -1,16 +1,18 @@
 import pyotp
-import csv
 from tabulate import tabulate
 from datetime import datetime
 import pandas as pd
 import time
-
+import getpass
 import file_handler
-import service_importer
 
 def totp(secret_key):
     """
-    Basic TOTP function
+    Args:
+        secret_key (string): secret in base64 format
+
+    Returns:
+        String: Current 30-second OTP
     """
     totp = pyotp.TOTP(secret_key)
     return totp.now()
@@ -24,20 +26,24 @@ def totp_offset(secret_key, offset=0):
     offset_time = int(time.time()) + offset
     return totp.generate_otp(offset_time)
 
+# attempt decrypt
 while True:
-    password = input("Enter your password: ")
+    password = getpass.getpass("Enter your password: ")
     tokens = file_handler.decrypt_file_with_password(password, "locked.bin")
     if tokens.empty == False:
         break
     else:
         print("Incorrect password\n")
 
-table = []
+# displays OTP's
+while (True):
+    table = []
 
-for index in tokens.index:
-    name = tokens['name'][index]
-    secret = tokens['secret'][index]
-    table.append([name, totp(secret)])
-
-print(tabulate(table))
-print(str(datetime.now().second % 30) + " / 30")
+    for index in tokens.index:
+        name = tokens['name'][index]
+        secret = tokens['secret'][index]
+        table.append([name, totp(secret)])
+    print(tabulate(table))
+    print(str(datetime.now().second % 30) + " / 30")
+    if input("Continue: y/n " ) == "n":
+        break

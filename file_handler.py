@@ -12,7 +12,15 @@ from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
 
 
 def generate_key_from_password(password, salt=b''):
-    """Used for en/decryption"""
+    """_summary_
+
+    Args:
+        password (string): Password for generated base64encode
+        salt (bytes, optional): _description_. Defaults to b''.
+
+    Returns:
+        _type_: base64encode generated from password
+    """
     kdf = PBKDF2HMAC(
         algorithm=hashes.SHA256(),
         length=32,
@@ -24,7 +32,13 @@ def generate_key_from_password(password, salt=b''):
     return base64.urlsafe_b64encode(key)
 
 def encrypt_file_with_password(password, input_file, output_file):
-    """Encrypts file"""
+    """
+
+    Args:
+        password (string): Chosen password to lock file
+        input_file (string): Path to input file
+        output_file (string): Path to output file
+    """
     salt = os.urandom(16)
     key = generate_key_from_password(password, salt)
 
@@ -38,7 +52,15 @@ def encrypt_file_with_password(password, input_file, output_file):
         f.write(salt + encrypted_data)
 
 def decrypt_file_with_password(password, input_file):
-    """Attempt to decrypt file. Return populated dataframe if successful, empty dataframe if not"""
+    """_summary_
+
+    Args:
+        password (string): Password to attempt unlock
+        input_file (string): Path to locked file
+
+    Returns:
+        DataFrame: A populated dataframe upon successful unlock; empty dataframe if unsuccessful
+    """
     with open(input_file, 'rb') as f:
         salt = f.read(16)
         encrypted_data = f.read()
