@@ -31,14 +31,20 @@ def generate_key_from_password(password, salt=b''):
     key = kdf.derive(password.encode())
     return base64.urlsafe_b64encode(key)
 
-def encrypt_file_with_password(password, input_file, output_file):
-    """
+def encrypt_file_with_password(input_file:str,
+                            output_file:str,
+                            password:str,
+                            delete_input:bool = False):
+    """Takes an input file path and encrypts it with the chosen password, saved to the chosen output path.
 
     Args:
-        password (string): Chosen password to lock file
-        input_file (string): Path to input file
-        output_file (string): Path to output file
+        input_file (str): Path to the input file
+        output_file (str): Path to the encrypted output file
+        password (str): Chosen plain-text password
+        delete_input (bool, optional): If True, Delete the original file. Defaults to False.
     """
+    # TODO exception handling for stuff like FileNotFound
+
     salt = os.urandom(16)
     key = generate_key_from_password(password, salt)
 
@@ -51,8 +57,8 @@ def encrypt_file_with_password(password, input_file, output_file):
     with open(output_file, 'wb') as f:
         f.write(salt + encrypted_data)
 
-def decrypt_file_with_password(password, input_file):
-    """_summary_
+def decrypt_file_with_password(password:str, input_file:str) -> pd.DataFrame:
+    """Attempts to decrypt the secrets file and load it into memory as a dataframe
 
     Args:
         password (string): Password to attempt unlock
@@ -75,3 +81,6 @@ def decrypt_file_with_password(password, input_file):
     except InvalidToken:
         df = pd.DataFrame()
     return df
+
+if __name__ == "__main__":
+    print()

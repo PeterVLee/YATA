@@ -1,3 +1,4 @@
 locked.bin
-/*__pycache__
+__pycache__
+.vscode
 launch.json

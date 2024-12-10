@@ -20,7 +20,7 @@ def totp(secret_key):
 def totp_offset(secret_key, offset=0):
     """
     Alternate method with offset time to see future OTP
-    Doesn't work - gives a differring OTP
+    !!DOESN'T WORK!!
     """
     totp = pyotp.TOTP(secret_key)
     offset_time = int(time.time()) + offset
@@ -45,8 +45,8 @@ if __name__ == "__main__":
             name = tokens['name'][index]
             secret = tokens['secret'][index]
             table.append([name, totp(secret)])
-        
+
         time_elapsed = datetime.now().second % 30
-        
+
         print(tabulate(table))
         time.sleep(30 - time_elapsed)
