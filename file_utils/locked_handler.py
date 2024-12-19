@@ -1,6 +1,5 @@
 """
 File IO module. Uses hazmat libraries that I have no full knowledge of.
-TODO: Either stop using hazmat libraries or draw 25 and take a course on cryptography
 
 Uses the ~/.yata/ directory to store files
 """
@@ -9,10 +8,12 @@ import os
 import io
 import base64
 
+# TODO: replace pandas with yaml or json
 import pandas as pd
 
 from cryptography.fernet import Fernet
 from cryptography.fernet import InvalidToken
+# TODO: Either stop using hazmat libraries or draw 25 and take a course on cryptography
 from cryptography.hazmat.backends import default_backend
 from cryptography.hazmat.primitives import hashes
 from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
@@ -74,7 +75,7 @@ def encrypt_file_with_password(input_file:str,
         f.write(salt + encrypted_data)
 
 def decrypt_file_with_password(password:str) -> pd.DataFrame:
-    """Attempts to decrypt the secrets file and load it into memory as a dataframe
+    """Attempts to decrypt the secrets file and load it as a dataframe
 
     Args:
         password (string): Password to attempt unlock

@@ -17,7 +17,7 @@ from PySide6.QtWidgets import (
     QWidget
 )
 
-import totp.file_handler
+import file_utils.locked_handler
 
 class PasswordWindow(QMainWindow):
     def __init__(self):
@@ -53,7 +53,7 @@ class PasswordWindow(QMainWindow):
     def returnPressed(self):
         pass_attempt = self.txt_password_input.text()
         print(pass_attempt)
-        df_secrets = totp.file_handler.decrypt_file_with_password(pass_attempt)
+        df_secrets = file_utils.locked_handler.decrypt_file_with_password(pass_attempt)
 
         # TODO no worky
         if df_secrets.empty == True:
