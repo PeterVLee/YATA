@@ -1,37 +1,32 @@
+"""
+Maybe this doesn't need its own module and I honestly don't expect to
+make implementations for stuff other than the standard TOTP but whatever
+"""
+
 import pyotp
-from tabulate import tabulate
-from datetime import datetime
 import pandas as pd
 import time
-import getpass
-import file_utils.locked_handler as locked_handler
 
-def get_totp(secret_key):
+def get_totp_offset(secret_key:str, offset:int = 0) -> str:
     """Given a secret, return the TOTP
-
     Args:
-        secret_key (string): secret in base64 format
+        secret_key (str): secret in base64 format
+        offset (int): offset to the future in seconds, defaults to 0
 
     Returns:
-        String: Current 30-second OTP
-    """
-    totp = pyotp.TOTP(secret_key)
-    return totp.now()
-
-def get_totp_30s_offset(secret_key, offset:int = 0):
-    """
-    Alternate method with 30 second offset time to see future OTP
-    !!DOESN'T WORK!!
-    Args:
-        secret_key (string): secret in base64 format
-        offset (int): offset to the future in seconds, defaults to 0
+        str: offset OTP
     """
     totp = pyotp.TOTP(secret_key)
     offset_time = int(time.time()) + offset
-    return totp.generate_otp(offset_time)
+    return totp.at(offset_time)
 
 
 if __name__ == "__main__":
+    import getpass
+    from tabulate import tabulate
+    from datetime import datetime
+    import file_utils.locked_handler as locked_handler
+
     # attempt decrypt
     while True:
         password = getpass.getpass("Enter your password: ")
@@ -48,7 +43,7 @@ if __name__ == "__main__":
         for index in tokens.index:
             name = tokens['name'][index]
             secret = tokens['secret'][index]
-            table.append([name, get_totp(secret)])
+            table.append([name, get_totp_offset(secret)])
 
         time_elapsed = datetime.now().second % 30
 

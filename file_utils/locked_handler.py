@@ -33,6 +33,7 @@ def generate_key_from_password(password, salt=b''):
     Returns:
         _type_: base64encode generated from password
     """
+    # I have no idea what this shit is doing, seriously need to stop using the hazmat stuff
     kdf = PBKDF2HMAC(
         algorithm=hashes.SHA256(),
         length=32,
