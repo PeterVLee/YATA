@@ -6,10 +6,10 @@ YATA (**Y**et **A**nother **T**OTP (**T**ime-based **o**ne-**t**ime **p**assword
 
 Functionally I want this to act like a typical mobile TOTP app, but on desktop.
 
-#### This sucks
+## This sucks
 
 Yes it does, please tell me why it does and/or make a PR and it will maybe suck less
 
-#### This is redundant, use [X] instead
+## This is redundant, use [X] instead
 
 Yes it probably is, I'm still making this anyway because half of the reason why I'm making this is to pad my commit history :)

@@ -1,15 +1,15 @@
 """
-File IO module. Uses hazmat libraries that I have no full knowledge of.
+File IO module to handle locked.bin secrets file.
 
-Uses the ~/.yata/ directory to store files
+Uses hazmat libraries that I have no full knowledge of.
+
+Uses the ~/.yata/ directory to store locked.bin
 """
 
 import os
 import io
 import base64
-
-# TODO: replace pandas with yaml or json
-import pandas as pd
+import yaml
 
 from cryptography.fernet import Fernet
 from cryptography.fernet import InvalidToken
@@ -22,9 +22,13 @@ from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
 # Main directory for local storage
 YATA_DIRECTORY = os.path.expanduser('~') + '/.yata/'
 LOCKED_FILE = YATA_DIRECTORY + 'locked.bin'
+# If the user chooses not to set a password for ease of access, use this
+# "password" to lock the file, but since this is open source it really
+# isn't secure and there should be UI warnings telling them to set it
+DEFAULT_PASSWORD = "uQjPMbGEa6D2u9"
 
 def generate_key_from_password(password, salt=b''):
-    """Encodes a password into base64
+    """Encodes a password into base64 (I think)
 
     Args:
         password (string): Password for generated base64encode
@@ -44,21 +48,24 @@ def generate_key_from_password(password, salt=b''):
     key = kdf.derive(password.encode())
     return base64.urlsafe_b64encode(key)
 
-def encrypt_file_with_password(input_file:str,
-                            password:str,
-                            delete_input:bool = False):
-    """Takes an input file path and encrypts it with the chosen password, saved to locked.bin in .yata
+def encrypt_file_with_password(input_file:str, password:str, delete:bool = False):
+    """Takes an input file path and encrypts it with the chosen password
+
+    Saved to locked.bin in ~/.yata/ directory.
+
+    If there is no input i.e. `password == ""` then an unsafe, default
+    password will be chosen.
 
     Make sure the user wants to overwrite locked.bin if it already exists
 
     Args:
         input_file (str): Path to the input file
         password (str): Chosen plain-text password
-        delete_input (bool, optional): If True, Delete the original file. Defaults to False.
+        delete (bool): Delete the input_file after. Defaults to False
     """
-    # TODO exception handling for stuff like FileNotFound
-
-    check_if_exists(YATA_DIRECTORY)
+    if password == "":
+        password = DEFAULT_PASSWORD
+        print("Warning, non-secure password used")
 
     salt = os.urandom(16)
     key = generate_key_from_password(password, salt)
@@ -75,19 +82,49 @@ def encrypt_file_with_password(input_file:str,
     with open(LOCKED_FILE, 'wb') as f:
         f.write(salt + encrypted_data)
 
-def decrypt_file_with_password(password:str) -> pd.DataFrame:
-    """Attempts to decrypt the secrets file and load it as a dataframe
+def decrypt_file_with_password(password:str) -> dict:
+    """Get stored .yaml data from locked.bin file
+
+    Attempts to unlock with the chosen password first, then the default.
+
+    TODO: If the default password works then send a warning somehow,
+    maybe add another key in the dictionary like "secure_file": False/True
 
     Args:
         password (string): Password to attempt unlock
 
     Returns:
-        DataFrame: A populated dataframe upon successful unlock; empty dataframe if unsuccessful
+        dict: secrets
+
+    Raises:
+        FileNotFoundError: /.yata/ or locked.bin does not exist
+        InvalidToken: Wrong password
     """
+    try:
+        file_stream = decrypt_file_stream(password)
+    except InvalidToken:
+        # inputted password didn't work, check default
+        # this is probably bad practice
+        try:
+            file_stream = decrypt_file_stream(DEFAULT_PASSWORD)
+            print("Warning, unsecure secrets!")
+        except InvalidToken:
+            raise InvalidToken
 
-    if not check_if_exists(YATA_DIRECTORY):
-        raise FileNotFoundError
+    return yaml.safe_load(file_stream)
 
+def decrypt_file_stream(password:str) -> io.BytesIO:
+    """Attempt to decrypt file, mostly a helper function to decrypt_file_with_password
+
+    Args:
+        password (str): plaintext password
+
+    Returns:
+        io.BytesIO: file-like stream
+
+    Raises:
+        InvalidToken: Wrong password
+    """
     with open(LOCKED_FILE, 'rb') as f:
         salt = f.read(16)
         encrypted_data = f.read()
@@ -98,27 +135,13 @@ def decrypt_file_with_password(password:str) -> pd.DataFrame:
     try:
         decrypted_data = cipher.decrypt(encrypted_data)
         file_like = io.BytesIO(decrypted_data)
-        df = pd.read_csv(file_like)
     except InvalidToken:
-        df = pd.DataFrame()
-    return df
+        raise InvalidToken
 
-def check_if_exists(directory: str) -> bool:
-    """ Create a directory if needed.
+    return file_like
 
-    Args:
-        directory (str): Path to directory to check/create
-
-    Returns:
-        bool: Returns True if the directory existed, False if one had to be created
-    """
-    try:
-        if not os.path.exists(directory):
-            os.makedirs(directory)
-            return False
-    except PermissionError:
-        raise
-    return True
 
 if __name__ == "__main__":
+    password = input("password: ")
+    secrets = decrypt_file_with_password(password)
     print()
