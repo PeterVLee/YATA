@@ -24,7 +24,7 @@ def import_2fas(input_file:str) -> dict:
         TypeError: File isn't json/yaml format
     """
     try:
-        with open(input_file, 'r') as file:
+        with open(input_file, 'r', encoding='UTF-8') as file:
             data = yaml.safe_load(file)
     except FileNotFoundError:
         raise FileNotFoundError
@@ -42,8 +42,7 @@ def import_2fas(input_file:str) -> dict:
 if __name__ == "__main__":
     filename = input("input file:")
     try:
-        data = import_2fas(filename)
+        import_data = import_2fas(filename)
     except FileNotFoundError:
         print("file not found")
-    print(data)
-    ...
+    print(import_data)

@@ -3,8 +3,9 @@ Maybe this doesn't need its own module and I honestly don't expect to
 make implementations for stuff other than the standard TOTP but whatever
 """
 
-import pyotp
 import time
+
+import pyotp
 
 def get_totp_offset(secret_key:str, offset:int = 0) -> str:
     """Given a secret, return the TOTP

@@ -100,6 +100,8 @@ def decrypt_file_with_password(password:str) -> dict:
         FileNotFoundError: /.yata/ or locked.bin does not exist
         InvalidToken: Wrong password
     """
+    is_secrets_secure = True
+
     try:
         file_stream = decrypt_file_stream(password)
     except InvalidToken:
@@ -107,11 +109,14 @@ def decrypt_file_with_password(password:str) -> dict:
         # this is probably bad practice
         try:
             file_stream = decrypt_file_stream(DEFAULT_PASSWORD)
-            print("Warning, unsecure secrets!")
+            is_secrets_secure = False
         except InvalidToken:
             raise InvalidToken
 
-    return yaml.safe_load(file_stream)
+    secrets_yaml = yaml.safe_load(file_stream)
+    secrets_yaml['secure'] = is_secrets_secure
+
+    return secrets_yaml
 
 def decrypt_file_stream(password:str) -> io.BytesIO:
     """Attempt to decrypt file, mostly a helper function to decrypt_file_with_password
@@ -142,6 +147,6 @@ def decrypt_file_stream(password:str) -> io.BytesIO:
 
 
 if __name__ == "__main__":
-    password = input("password: ")
-    secrets = decrypt_file_with_password(password)
+    input_password = input("password: ")
+    secrets = decrypt_file_with_password(input_password)
     print()
