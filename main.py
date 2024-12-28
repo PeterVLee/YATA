@@ -1,5 +1,9 @@
 """
 Main runner to kick-off process
+Currently is only CLI-based as I try to figure out code flow
+and logic before fully using GUI
+All print statements will eventually be replaced by either logging
+statements or a GUI element
 """
 
 import getpass
@@ -19,16 +23,28 @@ if __name__ == "__main__":
     # CLI version -------------------------------------------------------------
     # -------------------------------------------------------------------------
 
+    locked = True
+
+    # first try default password
+    try:
+        secrets = locked_handler.decrypt_file_with_password()
+        locked = False
+    except InvalidToken:
+        print("Default password didn't work")
+
     # attempt decrypt
-    while True:
+    while locked:
         password = getpass.getpass("Enter your password: ")
         try:
             secrets = locked_handler.decrypt_file_with_password(password)
-            break
+            locked = False
         except InvalidToken:
             print("Incorrect password\n")
 
     services = secrets['services']
+
+    if secrets['secure_password'] == False:
+        print("DEFAULT PASSWORD USED, USE SOMETHING ELSE")
 
     # displays OTP's
     while True:

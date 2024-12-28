@@ -27,7 +27,7 @@ LOCKED_FILE = YATA_DIRECTORY + 'locked.bin'
 # isn't secure and there should be UI warnings telling them to set it
 DEFAULT_PASSWORD = "uQjPMbGEa6D2u9"
 
-def generate_key_from_password(password, salt=b''):
+def __generate_key_from_password(password, salt=b''):
     """Encodes a password into base64 (I think)
 
     Args:
@@ -37,7 +37,8 @@ def generate_key_from_password(password, salt=b''):
     Returns:
         _type_: base64encode generated from password
     """
-    # I have no idea what this shit is doing, seriously need to stop using the hazmat stuff
+    # I have no idea what this shit is doing, but this is lifted directly
+    # from cryptography.io so hopefully it's secure enough
     kdf = PBKDF2HMAC(
         algorithm=hashes.SHA256(),
         length=32,
@@ -68,7 +69,7 @@ def encrypt_file_with_password(input_file:str, password:str, delete:bool = False
         print("Warning, non-secure password used")
 
     salt = os.urandom(16)
-    key = generate_key_from_password(password, salt)
+    key = __generate_key_from_password(password, salt)
 
     try:
         with open(input_file, 'rb') as f:
@@ -82,50 +83,51 @@ def encrypt_file_with_password(input_file:str, password:str, delete:bool = False
     with open(LOCKED_FILE, 'wb') as f:
         f.write(salt + encrypted_data)
 
-def decrypt_file_with_password(password:str) -> dict:
+def decrypt_file_with_password(password:str = DEFAULT_PASSWORD) -> dict:
     """Get stored .yaml data from locked.bin file
 
-    Attempts to unlock with the chosen password first, then the default.
-
-    TODO: If the default password works then send a warning somehow,
-    maybe add another key in the dictionary like "secure_file": False/True
+    Attempts to unlock with the chosen password. If no password is chosen,
+    attempt the default password instead.
+    Sets 'secure_password' key to True or False whether default password
+    was used.
 
     Args:
-        password (string): Password to attempt unlock
+        password (str): Password to attempt unlock. Optional, defaults to
+        DEFAULT_PASSWORD
 
     Returns:
-        dict: secrets
+        dict: secrets dictionary
 
     Raises:
         FileNotFoundError: /.yata/ or locked.bin does not exist
         InvalidToken: Wrong password
     """
+    if password == '':
+        password = DEFAULT_PASSWORD
+
     is_secrets_secure = True
 
+    if password == DEFAULT_PASSWORD:
+        is_secrets_secure = False
+
     try:
-        file_stream = decrypt_file_stream(password)
+        file_stream = __decrypt_file_stream(password)
     except InvalidToken:
-        # inputted password didn't work, check default
-        # this is probably bad practice
-        try:
-            file_stream = decrypt_file_stream(DEFAULT_PASSWORD)
-            is_secrets_secure = False
-        except InvalidToken:
-            raise InvalidToken
+        raise InvalidToken
 
     secrets_yaml = yaml.safe_load(file_stream)
-    secrets_yaml['secure'] = is_secrets_secure
+    secrets_yaml['secure_password'] = is_secrets_secure
 
     return secrets_yaml
 
-def decrypt_file_stream(password:str) -> io.BytesIO:
+def __decrypt_file_stream(password:str) -> io.BytesIO:
     """Attempt to decrypt file, mostly a helper function to decrypt_file_with_password
 
     Args:
         password (str): plaintext password
 
     Returns:
-        io.BytesIO: file-like stream
+        io.BytesIO: decrypted file-like stream from locked.bin
 
     Raises:
         InvalidToken: Wrong password
@@ -134,7 +136,7 @@ def decrypt_file_stream(password:str) -> io.BytesIO:
         salt = f.read(16)
         encrypted_data = f.read()
 
-    key = generate_key_from_password(password, salt)
+    key = __generate_key_from_password(password, salt)
     cipher = Fernet(key)
 
     try:
@@ -149,4 +151,5 @@ def decrypt_file_stream(password:str) -> io.BytesIO:
 if __name__ == "__main__":
     input_password = input("password: ")
     secrets = decrypt_file_with_password(input_password)
+    #secrets = decrypt_file_with_password()
     print()
