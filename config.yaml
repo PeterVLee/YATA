@@ -1,0 +1,17 @@
+paths:
+  yata_directory: '~/.yata/'
+  locked_file: '~/.yata/locked.bin'
+
+default_password: "uQjPMbGEa6D2u9"
+
+auth_types:
+  - name: '2fas'
+  # file extension used by the export function of the authenticator app
+    extension: '2fas'
+
+  # these are placeholders until I find out what extensions are used by these apps
+  - name: 'lastpass'
+    extension: 'csv'
+
+  - name: 'keepass'
+    extension: 'kdbx'

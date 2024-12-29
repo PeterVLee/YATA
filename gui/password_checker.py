@@ -1,6 +1,6 @@
 import sys
 
-from PySide6.QtCore import Qt
+from PySide6.QtCore import Signal, QTimer
 from PySide6.QtWidgets import (
     QApplication,
     QLabel,
@@ -13,15 +13,14 @@ from PySide6.QtWidgets import (
 import file_utils.locked_handler
 
 class PasswordWindow(QMainWindow):
+
+    # signal used to emit password to main window
+    signal_password = Signal(str)
+
     def __init__(self):
         super().__init__()
 
-        if self.check_default_password():
-            ...
-            # this is where you tell the main window the default password works
-            print("default workd")
-        else:
-            print("defaulyt no work")
+        self.check_default_password()
 
         self.setWindowTitle("Enter Password")
 
@@ -52,22 +51,22 @@ class PasswordWindow(QMainWindow):
             file_utils.locked_handler.decrypt_file_with_password(pass_attempt)
             self.lbl_password_prompt.setText("Unlocking...")
             print("good")
+            self.signal_password.emit(pass_attempt)
+            self.close()
         except:
             self.lbl_password_prompt.setText("Wrong password")
             print("wrong")
 
-    def check_default_password(self) -> bool:
+    def check_default_password(self):
         """Check if default password works on file first
-
-        Returns:
-            bool: If default works, True
         """
         try:
             file_utils.locked_handler.decrypt_file_with_password()
-            return True
+            self.signal_password.emit('')
+            # using singleShot to let init completely create window first
+            QTimer.singleShot(0, self.close)
         except:
             print("Default doesn't work")
-            return False
 
 #debugging
 if __name__ == "__main__":

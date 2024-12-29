@@ -1,7 +1,9 @@
 """
 Main runner to kick-off process
-Currently is only CLI-based as I try to figure out code flow
-and logic before fully using GUI
+
+Currently is only CLI-based as I try to figure out code flow and logic before
+fully using GUI
+
 All print statements will eventually be replaced by either logging
 statements or a GUI element
 """
@@ -17,12 +19,7 @@ from file_utils import locked_handler
 from totp.totp_generator import get_totp_offset
 
 
-if __name__ == "__main__":
-
-    # -------------------------------------------------------------------------
-    # CLI version -------------------------------------------------------------
-    # -------------------------------------------------------------------------
-
+def cli_version():
     locked = True
 
     # first try default password
@@ -53,13 +50,15 @@ if __name__ == "__main__":
         for service in services:
             name = service['name']
             secret = service['secret']
-            table.append([name, get_totp_offset(secret)])
+            table.append([name,
+                          get_totp_offset(secret),
+                          get_totp_offset(secret, 30)
+                          ])
 
         time_elapsed = datetime.now().second % 30
 
         print(tabulate(table))
         time.sleep(30 - time_elapsed)
 
-    # -------------------------------------------------------------------------
-    # CLI version -------------------------------------------------------------
-    # -------------------------------------------------------------------------
+if __name__ == "__main__":
+    cli_version()

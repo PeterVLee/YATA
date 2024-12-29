@@ -8,6 +8,7 @@ Uses the ~/.yata/ directory to store locked.bin
 
 import os
 import io
+import random
 import base64
 import yaml
 
@@ -20,7 +21,7 @@ from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
 
 
 # Main directory for local storage
-YATA_DIRECTORY = os.path.expanduser('~') + '/.yata/'
+YATA_DIRECTORY = os.path.expanduser('~/.yata/')
 LOCKED_FILE = YATA_DIRECTORY + 'locked.bin'
 # If the user chooses not to set a password for ease of access, use this
 # "password" to lock the file, but since this is open source it really
@@ -49,10 +50,30 @@ def __generate_key_from_password(password, salt=b''):
     key = kdf.derive(password.encode())
     return base64.urlsafe_b64encode(key)
 
+def secure_remove(file_path:str, passes:int = 3):
+    """Securely removes a file similarly to UNIX srm command
+
+    Args:
+        file_path (str): path to file
+        passes (int, optional): Number of passes to overwrite. Defaults to 3.
+    """
+    if not os.path.exists(file_path):
+        return
+
+    length = os.path.getsize(file_path)
+    with open(file_path, "r+b") as file:
+        for _ in range(passes):
+            file.seek(0)
+            file.write(os.urandom(length))
+            file.flush()
+            os.fsync(file.fileno())
+
+    os.remove(file_path)
+
 def encrypt_file_with_password(input_file:str, password:str, delete:bool = False):
     """Takes an input file path and encrypts it with the chosen password
 
-    Saved to locked.bin in ~/.yata/ directory.
+    Saved to ~/.yata/locked.bin
 
     If there is no input i.e. `password == ""` then an unsafe, default
     password will be chosen.
@@ -76,6 +97,9 @@ def encrypt_file_with_password(input_file:str, password:str, delete:bool = False
             data = f.read()
     except FileNotFoundError as err:
         raise err
+
+    if delete:
+        secure_remove(input_file)
 
     cipher = Fernet(key)
     encrypted_data = cipher.encrypt(data)
