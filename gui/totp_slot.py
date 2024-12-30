@@ -3,9 +3,12 @@
 Planned to look something like this:
 
 |---------------------|
-| Google              |
-| 123456    109539    |
-| :26                 |
+| Google              |   <- service
+| 123456    109539    |   <- current and next OTP
+| :26                 |   <- time left
 |---------------------|
 
+planned features:
+- clicking on widget copies current code
+- resizing widget changes layout and font size
 """

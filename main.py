@@ -15,7 +15,7 @@ from datetime import datetime
 from tabulate import tabulate
 from cryptography.fernet import InvalidToken
 
-from file_utils import locked_handler
+from utils import locked_handler
 from totp.totp_generator import get_totp_offset
 
 

@@ -1,4 +1,5 @@
 locked.bin
+unsecure_secrets.yaml
 __pycache__
 .vscode
 launch.json

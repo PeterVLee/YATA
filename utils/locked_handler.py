@@ -21,8 +21,10 @@ from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
 
 
 # Main directory for local storage
+# TODO: Move to a config file
 YATA_DIRECTORY = os.path.expanduser('~/.yata/')
 LOCKED_FILE = YATA_DIRECTORY + 'locked.bin'
+UNSECURE_FILE = YATA_DIRECTORY + 'unsecure_secrets.yaml'
 # If the user chooses not to set a password for ease of access, use this
 # "password" to lock the file, but since this is open source it really
 # isn't secure and there should be UI warnings telling them to set it
@@ -70,45 +72,29 @@ def secure_remove(file_path:str, passes:int = 3):
 
     os.remove(file_path)
 
-def encrypt_file_with_password(input_file:str, password:str, delete:bool = False):
-    """Takes an input file path and encrypts it with the chosen password
-
-    Saved to ~/.yata/locked.bin
-
-    If there is no input i.e. `password == ""` then an unsafe, default
-    password will be chosen.
-
-    Make sure the user wants to overwrite locked.bin if it already exists
+def update_secrets_file(secrets:dict, password:str):
+    """Update the locked.bin file
 
     Args:
-        input_file (str): Path to the input file
-        password (str): Chosen plain-text password
-        delete (bool): Delete the input_file after. Defaults to False
+        secrets (dict): secrets dictionary
+        password (str): plaintext password
     """
-    if password == "":
+    if password == '':
         password = DEFAULT_PASSWORD
-        print("Warning, non-secure password used")
 
     salt = os.urandom(16)
     key = __generate_key_from_password(password, salt)
 
-    try:
-        with open(input_file, 'rb') as f:
-            data = f.read()
-    except FileNotFoundError as err:
-        raise err
-
-    if delete:
-        secure_remove(input_file)
+    yaml_data = yaml.dump(secrets).encode()
 
     cipher = Fernet(key)
-    encrypted_data = cipher.encrypt(data)
+    encrypted_data = cipher.encrypt(yaml_data)
 
     with open(LOCKED_FILE, 'wb') as f:
         f.write(salt + encrypted_data)
 
 def decrypt_file_with_password(password:str = DEFAULT_PASSWORD) -> dict:
-    """Get stored .yaml data from locked.bin file
+    """Get stored secrets from locked.bin file
 
     Attempts to unlock with the chosen password. If no password is chosen,
     attempt the default password instead.
@@ -123,7 +109,6 @@ def decrypt_file_with_password(password:str = DEFAULT_PASSWORD) -> dict:
         dict: secrets dictionary
 
     Raises:
-        FileNotFoundError: /.yata/ or locked.bin does not exist
         InvalidToken: Wrong password
     """
     if password == '':
@@ -171,6 +156,11 @@ def __decrypt_file_stream(password:str) -> io.BytesIO:
 
     return file_like
 
+def __init_yata_directory():
+    """Initializes the ~/.yata/ directory if it doesn't exist
+    """
+    if not os.path.exists(YATA_DIRECTORY):
+        os.makedirs(YATA_DIRECTORY)
 
 if __name__ == "__main__":
     input_password = input("password: ")

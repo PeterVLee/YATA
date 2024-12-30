@@ -5,16 +5,20 @@ import os
 
 import yaml
 
-from locked_handler import encrypt_file_with_password
+from locked_handler import update_secrets_file
 
+# TODO: Move to a config file
 YATA_DIRECTORY = os.path.expanduser('~/.yata/')
 LOCKED_FILE = YATA_DIRECTORY + 'locked.bin'
+UNSECURE_FILE = YATA_DIRECTORY + 'unsecure_secrets.yaml'
 
 def import_authenticator(auth_type:str, file_path:str, password:str) -> None:
     """Choose auth app to import secrets from and store them in locked.bin
 
     # TODO: Remove need for auth_type and determine it from file_path
     # some regex is probably needed for this (ugh)
+
+    # TODO: Check if file exists. If it does, add to it rather than overwrite it
 
     Args:
         auth_type (str): type of auth app
@@ -38,15 +42,12 @@ def import_authenticator(auth_type:str, file_path:str, password:str) -> None:
         case "1password":
             ...
 
-    unsecure_secrets_file = YATA_DIRECTORY + 'unsecure_secrets.yaml'
-
-    yaml.dump(secrets, open(unsecure_secrets_file, 'w', encoding='UTF-8'))
-
-    encrypt_file_with_password(unsecure_secrets_file, password, True)
+    update_secrets_file(secrets, password)
 
 def __import_2fas(input_file:str) -> dict:
-    """Function to parse exported 2fas csv's
-    TODO: Decryption, figure out a schema (or just yoink 2fas')
+    """2fas file parser
+
+    TODO: Decryption from password, figure out a schema (or just yoink 2fas')
 
     Args:
         input_file (str): Path to csv

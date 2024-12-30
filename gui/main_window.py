@@ -1,6 +1,5 @@
 """
-Main window containing TOTP codes and kicks off other windows
-like the password checker
+Main window containing TOTP codes and kicks off other windows like the password checker
 """
 
 import sys
