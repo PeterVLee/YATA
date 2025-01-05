@@ -14,7 +14,7 @@ def get_totp_offset(secret_key:str, offset:int = 0) -> str:
         offset (int): offset to the future in seconds, defaults to 0
 
     Returns:
-        str: offset OTP
+        str: OTP value
     """
     totp = pyotp.TOTP(secret_key)
     offset_time = int(time.time()) + offset

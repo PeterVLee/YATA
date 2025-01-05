@@ -1,5 +1,7 @@
 """
 Main window containing TOTP codes and kicks off other windows like the password checker
+
+Scrollable 2x or 1x grid layout of totp_slot sidgets depending on window width size
 """
 
 import sys

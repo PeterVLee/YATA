@@ -2,10 +2,11 @@
 
 Planned to look something like this:
 
+   v icon
 |---------------------|
-| Google              |   <- service
-| 123456    109539    |   <- current and next OTP
-| :26                 |   <- time left
+| xxx  Google         |   <- service
+| xxx  123456  109539 |   <- current and next OTP
+| xxx  :26            |   <- time left
 |---------------------|
 
 planned features:

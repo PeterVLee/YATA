@@ -10,7 +10,7 @@ from PySide6.QtWidgets import (
     QWidget
 )
 
-import file_utils.locked_handler
+import utils.locked_handler
 
 class PasswordWindow(QMainWindow):
 
@@ -48,7 +48,7 @@ class PasswordWindow(QMainWindow):
         print(pass_attempt)
 
         try:
-            file_utils.locked_handler.decrypt_file_with_password(pass_attempt)
+            utils.locked_handler.decrypt_file_with_password(pass_attempt)
             self.lbl_password_prompt.setText("Unlocking...")
             print("good")
             self.signal_password.emit(pass_attempt)
@@ -61,9 +61,10 @@ class PasswordWindow(QMainWindow):
         """Check if default password works on file first
         """
         try:
-            file_utils.locked_handler.decrypt_file_with_password()
+            utils.locked_handler.decrypt_file_with_password()
             self.signal_password.emit('')
             # using singleShot to let init completely create window first
+            print("Default works")
             QTimer.singleShot(0, self.close)
         except:
             print("Default doesn't work")

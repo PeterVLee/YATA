@@ -2,6 +2,9 @@ paths:
   yata_directory: '~/.yata/'
   locked_file: '~/.yata/locked.bin'
 
+# If the user chooses not to set a password for ease of access, use this
+# "password" to lock the file, but since this is open source it really
+# isn't secure and there should be UI warnings telling them to set it
 default_password: "uQjPMbGEa6D2u9"
 
 auth_types:
