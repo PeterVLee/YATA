@@ -8,7 +8,6 @@ Uses the ~/.yata/ directory to store locked.bin
 
 import os
 import io
-import random
 import base64
 import yaml
 

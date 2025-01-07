@@ -3,7 +3,7 @@ Handles services + secrets dictionary
 """
 
 def switch_service_places(services: list, index1: int, index2: int) -> list:
-    """_summary_
+    """Switches the places of two services in the list
 
     Args:
         services (list): _description_
@@ -15,12 +15,12 @@ def switch_service_places(services: list, index1: int, index2: int) -> list:
     """
 
 def add_service(services: list, name: str, secret: str) -> list:
-    """_summary_
+    """Adds a service to the list
 
     Args:
         services (list): _description_
-        name (str): _description_
-        secret (str): _description_
+        name (str): name of service
+        secret (str): OTP key
 
     Returns:
         list: _description_

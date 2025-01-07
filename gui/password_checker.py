@@ -13,6 +13,13 @@ from PySide6.QtWidgets import (
 import utils.locked_handler
 
 class PasswordWindow(QMainWindow):
+    """Window to enter password to unlock secrets
+
+    First attempts to unlock with default password, if that fails, user can enter their own password
+    
+    Emits:
+        signal_password with password entered
+    """
 
     # signal used to emit password to main window
     signal_password = Signal(str)

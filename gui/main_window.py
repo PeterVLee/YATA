@@ -22,6 +22,7 @@ from PySide6.QtWidgets import (
 )
 
 from password_checker import PasswordWindow
+from totp_slot import TotpSlotWidget
 
 class MainWindow(QMainWindow):
     def __init__(self):
