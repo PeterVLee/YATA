@@ -61,7 +61,6 @@ class TotpSlotWidget(QWidget):
       self.lbl_current_otp = QLabel(current_otp)
       self.lbl_next_otp = QLabel(next_otp)
 
-      # maybe TODO: add a little graphic?
       self.lbl_time_left = QLabel()
 
       h_layout.addWidget(self.lbl_icon)
@@ -76,9 +75,36 @@ class TotpSlotWidget(QWidget):
 
       self.setLayout(h_layout)
 
+      # timer to update widget
       self.timer = QTimer(self)
       self.timer.timeout.connect(self.update_widget)
-      self.timer.start(1000)
+      self.timer.start(500) # we do 500ms to make it smoother, 1000ms causes a weird delay effect
+
+      # set up styles
+      self.lbl_service_name.setObjectName("serviceName")
+      self.lbl_current_otp.setObjectName("currentOtp")
+      self.lbl_next_otp.setObjectName("nextOtp")
+      self.lbl_time_left.setObjectName("timeLeft")
+      self.setObjectName("totpSlotWidget")
+
+      self.setStyleSheet("""
+         QLabel {
+            font-size: 14px;
+         }
+         QLabel#serviceName {
+            font-weight: bold;
+            font-size: 16px;
+         }
+         QLabel#currentOtp {
+            color: green;
+         }
+         QLabel#nextOtp {
+            color: red;
+         }
+         QLabel#timeLeft {
+            font-style: italic;
+         }
+      """)
    
    def update_widget(self):
       time_left = 30 - int(time.time()) % 30
