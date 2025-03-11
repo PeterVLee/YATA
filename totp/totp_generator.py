@@ -9,6 +9,7 @@ import pyotp
 
 def get_totp_offset(secret_key:str, offset:int = 0) -> str:
     """Given a secret, return the TOTP
+
     Args:
         secret_key (str): secret in base64 format
         offset (int): offset to the future in seconds, defaults to 0
@@ -19,7 +20,3 @@ def get_totp_offset(secret_key:str, offset:int = 0) -> str:
     totp = pyotp.TOTP(secret_key)
     offset_time = int(time.time()) + offset
     return totp.at(offset_time)
-
-
-if __name__ == "__main__":
-    ...

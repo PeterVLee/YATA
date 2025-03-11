@@ -39,7 +39,7 @@ def __generate_key_from_password(password, salt=b''):
     Returns:
         _type_: base64encode generated from password
     """
-    # I have no idea what this shit is doing, but this is lifted directly
+    # I have no idea what this is doing, but this is lifted directly
     # from cryptography.io so hopefully it's secure enough
     kdf = PBKDF2HMAC(
         algorithm=hashes.SHA256(),
@@ -101,14 +101,14 @@ def decrypt_file_with_password(password:str = DEFAULT_PASSWORD) -> dict:
     was used.
 
     Args:
-        password (str): Password to attempt unlock. Optional, defaults to
+        password (str, optional): Password to attempt unlock. Optional, defaults to\
         DEFAULT_PASSWORD
-
-    Returns:
-        dict: secrets dictionary
 
     Raises:
         InvalidToken: Wrong password
+
+    Returns:
+        dict: secrets dictionary
     """
     if password == '':
         password = DEFAULT_PASSWORD
@@ -155,8 +155,8 @@ def __decrypt_file_stream(password:str) -> io.BytesIO:
 
     return file_like
 
-def __init_yata_directory():
-    """Initializes the ~/.yata/ directory if it doesn't exist
+def __create_yata_directory():
+    """Creates the ~/.yata/ directory if it doesn't exist
     """
     if not os.path.exists(YATA_DIRECTORY):
         os.makedirs(YATA_DIRECTORY)

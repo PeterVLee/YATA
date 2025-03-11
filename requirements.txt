@@ -1,0 +1,5 @@
+tabulate
+cryptography
+PySide6
+pyotp
+pyyaml

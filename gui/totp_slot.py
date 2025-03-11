@@ -25,6 +25,7 @@ from PySide6.QtWidgets import (
    QVBoxLayout,
    QWidget
 )
+from PySide6.QtGui import QGuiApplication
 
 from totp.totp_generator import get_totp_offset
 from utils.locked_handler import decrypt_file_with_password
@@ -78,7 +79,9 @@ class TotpSlotWidget(QWidget):
       # timer to update widget
       self.timer = QTimer(self)
       self.timer.timeout.connect(self.update_widget)
-      self.timer.start(500) # we do 500ms to make it smoother, 1000ms causes a weird delay effect
+
+      milliseconds_left = round(time.time() * 1000) % 1000
+      self.timer.start(1000 - milliseconds_left) # we do 500ms to make it smoother, 1000ms causes a weird delay effect
 
       # set up styles
       self.lbl_service_name.setObjectName("serviceName")
@@ -105,13 +108,17 @@ class TotpSlotWidget(QWidget):
             font-style: italic;
          }
       """)
-   
+
    def update_widget(self):
       time_left = 30 - int(time.time()) % 30
       self.lbl_time_left.setText(f":{time_left}")
 
       self.lbl_current_otp.setText(get_totp_offset(self.services['secret']))
       self.lbl_next_otp.setText(get_totp_offset(self.services['secret'], 30))
+
+   def mousePressEvent(self, event):
+      clipboard = QGuiApplication.clipboard()
+      self.lbl_current_otp.text
 
 
 # debugging --------------------------------------------------
