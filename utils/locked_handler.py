@@ -1,9 +1,9 @@
 """
 File IO module to handle locked.bin secrets file.
 
-Uses hazmat libraries that I have no full knowledge of.
+Uses hazmat libraries for cryptography that I have no full knowledge of.
 
-Uses the ~/.yata/ directory to store locked.bin
+Uses the ~/.yata/ directory to store locked.bin so that it works cross-platform (in theory)
 """
 
 import os
@@ -102,7 +102,7 @@ def decrypt_file_with_password(password:str = DEFAULT_PASSWORD) -> dict:
 
     Args:
         password (str, optional): Password to attempt unlock. Optional, defaults to\
-        DEFAULT_PASSWORD
+        DEFAULT_PASSWORD. If an empty string is passed, change it to the default.
 
     Raises:
         InvalidToken: Wrong password
@@ -160,6 +160,8 @@ def __create_yata_directory():
     """
     if not os.path.exists(YATA_DIRECTORY):
         os.makedirs(YATA_DIRECTORY)
+
+    
 
 if __name__ == "__main__":
     input_password = input("password: ")
