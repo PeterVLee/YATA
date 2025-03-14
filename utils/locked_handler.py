@@ -12,7 +12,6 @@ import base64
 import yaml
 
 from cryptography.fernet import Fernet
-from cryptography.fernet import InvalidToken
 # TODO: Either stop using hazmat libraries or draw 25 and take a course on cryptography
 from cryptography.hazmat.backends import default_backend
 from cryptography.hazmat.primitives import hashes
@@ -118,10 +117,8 @@ def decrypt_file_with_password(password:str = DEFAULT_PASSWORD) -> dict:
     if password == DEFAULT_PASSWORD:
         is_secrets_secure = False
 
-    try:
-        file_stream = __decrypt_file_stream(password)
-    except InvalidToken:
-        raise InvalidToken
+    # incorrect pass raises InvalidToken
+    file_stream = __decrypt_file_stream(password)
 
     secrets_yaml = yaml.safe_load(file_stream)
     secrets_yaml['secure_password'] = is_secrets_secure
@@ -144,14 +141,12 @@ def __decrypt_file_stream(password:str) -> io.BytesIO:
         salt = f.read(16)
         encrypted_data = f.read()
 
+    # incorrect pass raises InvalidToken
     key = __generate_key_from_password(password, salt)
     cipher = Fernet(key)
 
-    try:
-        decrypted_data = cipher.decrypt(encrypted_data)
-        file_like = io.BytesIO(decrypted_data)
-    except InvalidToken:
-        raise InvalidToken
+    decrypted_data = cipher.decrypt(encrypted_data)
+    file_like = io.BytesIO(decrypted_data)
 
     return file_like
 
